@@ -7,10 +7,11 @@ import json
 
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage
 
-from gitbot.config import load_config, load_memory, save_memory, is_onboarded
-from gitbot.llm import get_llm
-from gitbot.mcp_client import connect_mcp, mcp_tools_to_langchain, call_mcp_tool
-from gitbot.ui import (
+from gitbot.core.config import load_config, load_memory, save_memory, is_onboarded
+from gitbot.llm.providers import get_llm
+from gitbot.mcp.client import connect_mcp, mcp_tools_to_langchain, call_mcp_tool
+from gitbot.tools.git_tools import get_git_tools
+from gitbot.ui.console import (
     console,
     print_banner,
     print_tool_call,
@@ -27,7 +28,8 @@ The current user's GitHub details:
 - Username: {github_username}
 - Email: {github_email}
 
-You have access to GitHub tools via MCP (Model Context Protocol). Use them to:
+You have access to GitHub tools via MCP (Model Context Protocol) and local git tools. Use them to:
+- Manage local git repositories (init, add, commit, push, status, log)
 - Search and browse repositories
 - Create, update, and manage issues
 - Create and review pull requests
@@ -111,7 +113,10 @@ async def run_agent_loop():
             console.print()
 
             lc_tools = mcp_tools_to_langchain(mcp_tools)
-            llm_with_tools = llm.bind_tools(lc_tools)
+            local_tools = get_git_tools()
+            local_tool_map = {t.name: t for t in local_tools}
+
+            llm_with_tools = llm.bind_tools(lc_tools + local_tools)
 
             raw_memory = load_memory()
             messages = _deserialize_messages(raw_memory)
@@ -158,9 +163,12 @@ async def run_agent_loop():
 
                         try:
                             with print_thinking():
-                                result = await call_mcp_tool(
-                                    session, tool_name, tool_args
-                                )
+                                if tool_name in local_tool_map:
+                                    result = local_tool_map[tool_name].invoke(tool_args)
+                                else:
+                                    result = await call_mcp_tool(
+                                        session, tool_name, tool_args
+                                    )
                             print_tool_result(result)
                         except Exception as e:
                             result = f"Error calling tool '{tool_name}': {e}"

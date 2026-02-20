@@ -8,8 +8,14 @@ import urllib.error
 
 from rich.prompt import Prompt, Confirm
 
-from gitbot.config import save_config, load_config, is_onboarded
-from gitbot.ui import console, print_banner, print_step, print_success, print_error
+from gitbot.core.config import save_config, load_config, is_onboarded
+from gitbot.ui.console import (
+    console,
+    print_banner,
+    print_step,
+    print_success,
+    print_error,
+)
 
 GROQ_TOOL_MODELS = [
     "llama-3.3-70b-versatile",

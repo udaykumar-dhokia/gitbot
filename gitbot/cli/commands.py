@@ -4,7 +4,7 @@ GitBot CLI entry point — Click commands.
 
 import asyncio
 import click
-from gitbot.onboarding import run_onboarding
+from gitbot.onboarding.wizard import run_onboarding
 
 
 @click.group()
@@ -22,7 +22,7 @@ def onboard():
 @cli.command()
 def chat():
     """Start an interactive chat session with GitBot."""
-    from gitbot.agent import run_agent_loop
+    from gitbot.core.agent import run_agent_loop
 
     asyncio.run(run_agent_loop())
 
@@ -30,8 +30,8 @@ def chat():
 @cli.command()
 def config():
     """Show current GitBot configuration."""
-    from gitbot.config import load_config, is_onboarded, CONFIG_FILE
-    from gitbot.ui import console
+    from gitbot.core.config import load_config, is_onboarded, CONFIG_FILE
+    from gitbot.ui.console import console
     from rich.table import Table
 
     if not is_onboarded():

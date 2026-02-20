@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-gitbot = "gitbot.main:cli"
+gitbot = "gitbot.cli.commands:cli"
 
 [build-system]
 requires = ["hatchling"]
