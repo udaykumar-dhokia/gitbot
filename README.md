@@ -14,6 +14,10 @@
 
 ---
 
+<img src="./gitbot_demo.png"/>
+
+---
+
 ## Features
 
 - **Local Git Control**: Initialize, stage, commit, push, and check status of local repositories.
